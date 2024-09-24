@@ -148,7 +148,7 @@ def shortest_path_page():
     for node in sample_nodes:
         c += 1
         st.write(f"- Node ID: {node}, Label: {G.nodes[node]['label']}, Group: {G.nodes[node]['group']}")
-        if c == 10:
+        if c == 15:
             break
 
     st.write("Note: This is just a sample. The graph contains many more nodes which can be used for the shortest path "
