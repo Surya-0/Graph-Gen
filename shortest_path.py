@@ -140,7 +140,7 @@ def shortest_path_page():
 
     # Display a sample of nodes from different groups
     sample_nodes = []
-    for group in ['business_group', 'family', 'offering', 'module', 'make', 'purchase']:
+    for group in ['business_group', 'module', 'make', 'purchase', 'family', 'offering']:
         nodes = [node for node, data in G.nodes(data=True) if data.get('group') == group]
         sample_nodes.extend(random.sample(nodes, min(5, len(nodes))))
 
