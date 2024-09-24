@@ -144,8 +144,12 @@ def shortest_path_page():
         nodes = [node for node, data in G.nodes(data=True) if data.get('group') == group]
         sample_nodes.extend(random.sample(nodes, min(5, len(nodes))))
 
+    c = 0
     for node in sample_nodes:
+        c += 1
         st.write(f"- Node ID: {node}, Label: {G.nodes[node]['label']}, Group: {G.nodes[node]['group']}")
+        if c == 10:
+            break
 
     st.write("Note: This is just a sample. The graph contains many more nodes which can be used for the shortest path "
              "visualisation.")
