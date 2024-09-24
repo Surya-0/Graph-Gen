@@ -25,24 +25,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-# constants.py
-BUSINESS_GROUP = {'BG001': 'Etch'}
-PRODUCT_FAMILIES = [
-    {'Family_ID': 'PF001', 'Family_Name': 'Kyo'},
-    {'Family_ID': 'PF002', 'Family_Name': 'Coronus'},
-    {'Family_ID': 'PF003', 'Family_Name': 'Flex'},
-    {'Family_ID': 'PF004', 'Family_Name': 'Versys Metal'}
-]
-PRODUCT_OFFERINGS = [
-    {'Offering_ID': 'PO001', 'Offering_Name': 'Versys® Kyo®', 'Family_ID': 'PF001'},
-    # ... (other product offerings)
-]
-
-COLOR_MAP = {
-    'business_group': '#FF9999',
-    'family': '#66B2FF',
-    'offering': '#99FF99',
-    'module': '#FFCC99',
-    'make': '#FF99CC',
-    'purchase': '#99CCFF'
-}

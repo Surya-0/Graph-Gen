@@ -2,15 +2,15 @@ import streamlit as st
 import networkx as nx
 import plotly.graph_objects as go
 import random
-
-
 def visualize_shortest_path(G, node1, node2):
     try:
         path = nx.shortest_path(G, source=node1, target=node2)
         st.success(f"Shortest path from {node1} to {node2}: {' -> '.join(path)}")
 
-        # Create the subgraph containing only the nodes in the shortest path
+        # Create a subgraph containing the shortest path and its neighbors
         subgraph_nodes = set(path)
+        for node in path:
+            subgraph_nodes.update(G.neighbors(node))
         subgraph = G.subgraph(subgraph_nodes)
 
         pos = nx.spring_layout(subgraph, k=0.5, iterations=50)
@@ -24,7 +24,23 @@ def visualize_shortest_path(G, node1, node2):
 
         edge_trace = go.Scatter(
             x=edge_x, y=edge_y,
-            line=dict(width=2, color='red'),
+            line=dict(width=1, color='#888'),
+            hoverinfo='none',
+            mode='lines'
+        )
+
+        # Highlight the shortest path
+        path_edges = list(zip(path, path[1:]))
+        path_x, path_y = [], []
+        for edge in path_edges:
+            x0, y0 = pos[edge[0]]
+            x1, y1 = pos[edge[1]]
+            path_x.extend([x0, x1, None])
+            path_y.extend([y0, y1, None])
+
+        path_trace = go.Scatter(
+            x=path_x, y=path_y,
+            line=dict(width=3, color='red'),
             hoverinfo='none',
             mode='lines'
         )
@@ -66,7 +82,7 @@ def visualize_shortest_path(G, node1, node2):
         node_trace.text = node_text
 
         fig = go.Figure(
-            data=[edge_trace, node_trace],
+            data=[edge_trace, path_trace, node_trace],
             layout=go.Layout(
                 title=f'Shortest Path from {node1} to {node2}',
                 titlefont_size=16,
@@ -131,4 +147,5 @@ def shortest_path_page():
     for node in sample_nodes:
         st.write(f"- Node ID: {node}, Label: {G.nodes[node]['label']}, Group: {G.nodes[node]['group']}")
 
-    st.write("Note: This is just a sample. Your graph may contain many more nodes.")
+    st.write("Note: This is just a sample. The graph contains many more nodes which can be used for the shortest path "
+             "visualisation.")
