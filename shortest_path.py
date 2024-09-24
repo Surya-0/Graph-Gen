@@ -140,7 +140,7 @@ def shortest_path_page():
 
     # Display a sample of nodes from different groups
     sample_nodes = []
-    for group in ['business_group', 'module', 'make', 'purchase', 'family', 'offering']:
+    for group in ['business_group', 'offering','module', 'make', 'purchase', 'family']:
         nodes = [node for node, data in G.nodes(data=True) if data.get('group') == group]
         sample_nodes.extend(random.sample(nodes, min(5, len(nodes))))
 
@@ -148,7 +148,7 @@ def shortest_path_page():
     for node in sample_nodes:
         c += 1
         st.write(f"- Node ID: {node}, Label: {G.nodes[node]['label']}, Group: {G.nodes[node]['group']}")
-        if c == 15:
+        if c == 12:
             break
 
     st.write("Note: This is just a sample. The graph contains many more nodes which can be used for the shortest path "
