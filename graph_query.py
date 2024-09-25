@@ -1,8 +1,11 @@
 import streamlit as st
 import networkx as nx
 import plotly.graph_objects as go
+from performance_tracker import measure_performance, format_performance_metrics
 
 
+
+@measure_performance
 def query_subgraph(G, node_id, levels=2):
     if node_id not in G.nodes:
         st.error(f"Node {node_id} does not exist in the graph.")
@@ -84,7 +87,17 @@ def graph_query_page():
 
     if st.button("Query Subgraph"):
         if node_id in G.nodes:
-            fig = query_subgraph(G, node_id, levels)
+            fig, performance_metrics = query_subgraph(G, node_id, levels)
             st.plotly_chart(fig)
+
+            st.subheader("Performance Metrics")
+            st.text(format_performance_metrics(performance_metrics))
+
+            st.info("""
+            Explanation of metrics:
+            - Execution Time: The total time taken to run the query and generate the subgraph.
+            - Memory Used: The additional memory consumed during the operation.
+            - Peak Memory: The maximum memory usage observed during the operation.
+            """)
         else:
             st.error(f"Node {node_id} not found in the graph.")

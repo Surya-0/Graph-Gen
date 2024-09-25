@@ -2,10 +2,23 @@ import streamlit as st
 import networkx as nx
 import plotly.graph_objects as go
 import random
+from performance_tracker import measure_performance, format_performance_metrics,get_metrics_explanation
+
+
+@measure_performance
+def calculate_shortest_path(G, node1, node2):
+    return nx.shortest_path(G, source=node1, target=node2)
+
+
 def visualize_shortest_path(G, node1, node2):
     try:
-        path = nx.shortest_path(G, source=node1, target=node2)
+        path, performance_metrics = calculate_shortest_path(G, node1, node2)
         st.success(f"Shortest path from {node1} to {node2}: {' -> '.join(path)}")
+
+
+        st.subheader("Performance Metrics")
+        st.text(format_performance_metrics(performance_metrics))
+        st.info(get_metrics_explanation())
 
         # Create a subgraph containing the shortest path and its neighbors
         subgraph_nodes = set(path)

@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from constants import *
 import random
+from performance_tracker import measure_performance, format_performance_metrics, get_metrics_explanation
 
 
 def poisson_module_generation(mu=3):
@@ -14,6 +15,7 @@ def gaussian_part_generation(mean=5, stddev=2):
     return max(1, int(np.random.normal(mean, stddev)))
 
 
+@measure_performance
 def generate_graph(total_nodes: int, density_factors: dict, module_to_part_ratio: float = 0.3):
     G = nx.Graph()
 
@@ -97,7 +99,7 @@ def plot_entire_graph(G):
 def graph_generation_page():
     st.title("Graph Generation and Visualization")
 
-    total_nodes = st.number_input("Enter the total number of nodes:", min_value=100, max_value=10000, value=1000,
+    total_nodes = st.number_input("Enter the total number of nodes:", min_value=100, max_value=100000, value=1000,
                                   step=100)
 
     if st.button("Generate Graph"):
@@ -109,9 +111,15 @@ def graph_generation_page():
             'PO021': 0.4
         }
 
-        G = generate_graph(total_nodes=total_nodes, density_factors=density_factors, module_to_part_ratio=0.3)
+        G, performance_metrics = generate_graph(total_nodes=total_nodes, density_factors=density_factors,
+                                                module_to_part_ratio=0.3)
         st.session_state['graph'] = G
         st.success(f"Graph generated with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges.")
 
-        fig = plot_entire_graph(G)
-        st.pyplot(fig)
+        st.subheader("Performance Metrics")
+        st.text(format_performance_metrics(performance_metrics))
+        st.info(get_metrics_explanation())
+
+        if total_nodes <= 20000:
+            fig = plot_entire_graph(G)
+            st.pyplot(fig)
