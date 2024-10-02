@@ -23,20 +23,43 @@ def save_to_csv(data, output_dir='output'):
                     writer.writerow(item)
         print(f"Saved {filename}")
 
+# def save_graph(data, filename='supply_chain_graph.pkl'):
+#     G = nx.DiGraph()
+#
+#     # Add nodes
+#     G.add_node(data['business_group']['id'], **data['business_group'], type='business_group')
+#     for pf in data['product_families']:
+#         G.add_node(pf['id'], **pf, type='product_family')
+#     for po in data['product_offerings']:
+#         G.add_node(po['id'], **po, type='product_offering')
+#     for module in data['modules']:
+#         G.add_node(module['id'], **module, type='module')
+#     for part in data['parts']:
+#         # part_type = 'make_part' if 'Make' in part['name'] else 'purchase_part'
+#         G.add_node(part['id'], **part, type='part')
+#
+#     # Add edges
+#     for edge in data['edges']:
+#         G.add_edge(edge['source_id'], edge['target_id'], **edge)
+#
+#     # Save the graph
+#     with open(filename, 'wb') as f:
+#         pickle.dump(G, f)
+#     print(f"Saved graph to {filename}")
+
+
 def save_graph(data, filename='supply_chain_graph.pkl'):
     G = nx.DiGraph()
 
     # Add nodes
-    G.add_node(data['business_group']['id'], **data['business_group'], type='business_group')
-    for pf in data['product_families']:
-        G.add_node(pf['id'], **pf, type='product_family')
-    for po in data['product_offerings']:
-        G.add_node(po['id'], **po, type='product_offering')
-    for module in data['modules']:
-        G.add_node(module['id'], **module, type='module')
-    for part in data['parts']:
-        # part_type = 'make_part' if 'Make' in part['name'] else 'purchase_part'
-        G.add_node(part['id'], **part, type='part')
+    for entity_type in ['business_group', 'product_families', 'product_offerings', 'modules', 'parts']:
+        if entity_type == 'business_group':
+            items = [data[entity_type]]  # Convert single dict to list for consistent processing
+        else:
+            items = data[entity_type]
+
+        for item in items:
+            G.add_node(item['id'], type=entity_type, **item)
 
     # Add edges
     for edge in data['edges']:
@@ -46,6 +69,7 @@ def save_graph(data, filename='supply_chain_graph.pkl'):
     with open(filename, 'wb') as f:
         pickle.dump(G, f)
     print(f"Saved graph to {filename}")
+
 
 def main(data):
     save_to_csv(data)

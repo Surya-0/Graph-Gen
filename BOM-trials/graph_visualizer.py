@@ -1,36 +1,60 @@
-# graph_visualizer.py
+# # graph_visualizer.py
 
 import networkx as nx
+import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 import csv
 import os
+import pickle
 
-def load_csv_data(directory):
-    data = {}
-    for filename in os.listdir(directory):
-        if filename.endswith('.csv'):
-            entity_type = filename[:-4]  # Remove '.csv'
-            data[entity_type] = []
-            with open(os.path.join(directory, filename), 'r') as csvfile:
-                reader = csv.DictReader(csvfile)
-                for row in reader:
-                    data[entity_type].append(row)
-    return data
+def load_graph(filename='supply_chain_graph.pkl'):
+    with open(filename, 'rb') as f:
+        return pickle.load(f)
 
+def create_node_trace(pos, node_types, node_sizes):
+    node_x = []
+    node_y = []
+    for node in pos:
+        x, y = pos[node]
+        node_x.append(x)
+        node_y.append(y)
 
-def create_graph(data):
-    G = nx.DiGraph()
+    node_trace = go.Scatter(
+        x=node_x, y=node_y,
+        mode='markers',
+        hoverinfo='text',
+        marker=dict(
+            showscale=True,
+            colorscale='YlGnBu',
+            reversescale=True,
+            color=[],
+            size=node_sizes,
+            colorbar=dict(
+                thickness=15,
+                title='Node Type',
+                xanchor='left',
+                titleside='right'
+            ),
+            line_width=2))
 
-    # Add nodes
-    for entity_type in ['business_group', 'product_families', 'product_offerings', 'modules', 'parts']:
-        for item in data[entity_type]:
-            G.add_node(item['id'], type=entity_type, **item)
+    return node_trace
 
-    # Add edges
-    for edge in data['edges']:
-        G.add_edge(edge['source_id'], edge['target_id'], **edge)
+def create_edge_trace(pos, edges):
+    edge_x = []
+    edge_y = []
+    for edge in edges:
+        x0, y0 = pos[edge[0]]
+        x1, y1 = pos[edge[1]]
+        edge_x.extend([x0, x1, None])
+        edge_y.extend([y0, y1, None])
 
-    return G
+    edge_trace = go.Scatter(
+        x=edge_x, y=edge_y,
+        line=dict(width=0.5, color='#888'),
+        hoverinfo='none',
+        mode='lines')
+
+    return edge_trace
 
 def visualize_graph(G):
     pos = nx.spring_layout(G, k=0.5, iterations=50)
@@ -64,12 +88,9 @@ def visualize_graph(G):
     plt.savefig("supply_chain_graph.png", dpi=300, bbox_inches='tight')
     plt.show()
 
-
 def main():
-    data = load_csv_data('output')
-    G = create_graph(data)
+    G = load_graph()
     visualize_graph(G)
-
 
 if __name__ == "__main__":
     main()

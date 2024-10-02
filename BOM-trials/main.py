@@ -3,6 +3,7 @@
 from data_generator import DataGenerator
 from data_saver import save_to_csv,save_graph
 from graph_visualizer import main as visualize_graph
+from graph_analyzer import main as analyze_graph
 
 def main():
     # Generate data
@@ -23,9 +24,9 @@ def main():
     print("Visualizing graph...")
     visualize_graph()
 
-    # # Analyze the graph
-    # print("Analyzing graph...")
-    # analyze_graph()
+    # Analyze the graph
+    print("Analyzing graph...")
+    analyze_graph()
 
     print("Process completed successfully.")
 
