@@ -1,8 +1,8 @@
 # data_generator.py
 
 import random
-import uuid
 from config import *
+
 
 class DataGenerator:
     def __init__(self):
@@ -21,40 +21,40 @@ class DataGenerator:
         self._generate_parts()
         self._generate_edges()
 
-
-    # Private methods
     def _generate_business_group(self):
         self.business_group = {
-            'id': str(uuid.uuid4()),
+            'id': 'BG_001',
             'name': BUSINESS_GROUP,
-            'revenue': random.uniform(*COST_RANGE) # Syntax used to unpack the tuple into separate arguments
+            'revenue': random.uniform(*COST_RANGE)
         }
 
     def _generate_product_families(self):
-        for pf in PRODUCT_FAMILIES:
+        for i, pf in enumerate(PRODUCT_FAMILIES, 1):
             self.product_families.append({
-                'id': str(uuid.uuid4()),
+                'id': f'PF_{i:03d}',
                 'name': pf,
                 'revenue': random.uniform(*COST_RANGE)
             })
 
     def _generate_product_offerings(self):
+        po_counter = 1
         for pf in self.product_families:
             for po in PRODUCT_OFFERINGS[pf['name']]:
                 self.product_offerings.append({
-                    'id': str(uuid.uuid4()),
+                    'id': f'PO_{po_counter:03d}',
                     'name': po,
                     'inventory': random.randint(*INVENTORY_RANGE),
                     'demand': random.randint(*DEMAND_RANGE),
                     'production_cost': random.uniform(*COST_RANGE),
                     'importance_factor': random.uniform(*IMPORTANCE_FACTOR_RANGE)
                 })
+                po_counter += 1
 
     def _generate_modules(self):
-        for _ in range(NUM_MODULES):
+        for i in range(1, NUM_MODULES + 1):
             self.modules.append({
-                'id': str(uuid.uuid4()),
-                'name': f"Module_{_}",
+                'id': f'M_{i:03d}',
+                'name': f"Module_{i}",
                 'inventory': random.randint(*INVENTORY_RANGE),
                 'importance_factor': random.uniform(*IMPORTANCE_FACTOR_RANGE),
                 'demand': 0,  # Will be calculated later
@@ -62,10 +62,10 @@ class DataGenerator:
             })
 
     def _generate_parts(self):
-        for _ in range(NUM_PARTS):
+        for i in range(1, NUM_PARTS + 1):
             self.parts.append({
-                'id': str(uuid.uuid4()),
-                'name': f"Part_{_}",
+                'id': f'P_{i:03d}',
+                'name': f"Part_{i}",
                 'inventory': random.randint(*INVENTORY_RANGE),
                 'importance_factor': random.uniform(*IMPORTANCE_FACTOR_RANGE),
                 'demand': 0,  # Will be calculated later
@@ -102,31 +102,35 @@ class DataGenerator:
 
     def _connect_product_offerings_to_modules(self):
         for po in self.product_offerings:
-            for module in self.modules:
-                if random.random() < CONNECTION_PROBABILITY['product_offering_to_module']:
-                    quantity = random.randint(*QUANTITY_RANGE)
-                    self.edges.append({
-                        'source_id': po['id'],
-                        'target_id': module['id'],
-                        'quantity': quantity,
-                        'transportation_cost': random.uniform(*TRANSPORTATION_COST_RANGE),
-                        'transportation_time': random.uniform(*TRANSPORTATION_TIME_RANGE)
-                    })
-                    module['demand'] += po['demand'] * quantity
+            num_connections = max(1, int(po['importance_factor'] * 10))  # Ensure at least one connection
+            potential_modules = random.sample(self.modules, min(num_connections, len(self.modules)))
+
+            for module in potential_modules:
+                quantity = random.randint(*QUANTITY_RANGE)
+                self.edges.append({
+                    'source_id': po['id'],
+                    'target_id': module['id'],
+                    'quantity': quantity,
+                    'transportation_cost': random.uniform(*TRANSPORTATION_COST_RANGE),
+                    'transportation_time': random.uniform(*TRANSPORTATION_TIME_RANGE)
+                })
+                module['demand'] += po['demand'] * quantity
 
     def _connect_modules_to_parts(self):
         for module in self.modules:
-            for part in self.parts:
-                if random.random() < CONNECTION_PROBABILITY['module_to_part']:
-                    quantity = random.randint(*QUANTITY_RANGE)
-                    self.edges.append({
-                        'source_id': module['id'],
-                        'target_id': part['id'],
-                        'quantity': quantity,
-                        'transportation_cost': random.uniform(*TRANSPORTATION_COST_RANGE),
-                        'transportation_time': random.uniform(*TRANSPORTATION_TIME_RANGE)
-                    })
-                    part['demand'] += module['demand'] * quantity
+            num_connections = max(1, int(module['importance_factor'] * 10))  # Ensure at least one connection
+            potential_parts = random.sample(self.parts, min(num_connections, len(self.parts)))
+
+            for part in potential_parts:
+                quantity = random.randint(*QUANTITY_RANGE)
+                self.edges.append({
+                    'source_id': module['id'],
+                    'target_id': part['id'],
+                    'quantity': quantity,
+                    'transportation_cost': random.uniform(*TRANSPORTATION_COST_RANGE),
+                    'transportation_time': random.uniform(*TRANSPORTATION_TIME_RANGE)
+                })
+                part['demand'] += module['demand'] * quantity
 
     def get_data(self):
         return {
@@ -137,3 +141,4 @@ class DataGenerator:
             'parts': self.parts,
             'edges': self.edges
         }
+

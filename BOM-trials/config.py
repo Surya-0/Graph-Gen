@@ -31,11 +31,7 @@ TRANSPORTATION_COST_RANGE = (10, 1000)
 TRANSPORTATION_TIME_RANGE = (1, 30)  # in days
 
 # Number of modules and parts to generate
-NUM_MODULES = 50
-NUM_PARTS = 100
+NUM_MODULES = 325
+NUM_PARTS = 650
 
-# Probability of connection between nodes
-CONNECTION_PROBABILITY = {
-    'product_offering_to_module': 0.3,
-    'module_to_part': 0.2
-}
+
