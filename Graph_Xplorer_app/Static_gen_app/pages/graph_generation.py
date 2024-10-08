@@ -120,7 +120,7 @@ def generate_csv_files(data):
 def show():
     st.title("Graph Generation")
 
-    total_nodes = st.slider("Total number of nodes", min_value=26, max_value=1000, value=100)
+    total_nodes = st.slider("Total number of nodes", min_value=26, max_value=100000, value=1000)
 
     if st.button("Generate Graph"):
         with st.spinner("Generating graph..."):
