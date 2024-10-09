@@ -35,10 +35,10 @@ def data_generator_page():
             # Save the generated data to session state
             st.session_state['generated_data'] = data
 
-            # Save the data to a file
+            # # Save the data to a file
             with open('generated_data.pkl', 'wb') as f:
                 pickle.dump(data, f)
-
+            #
             st.info("Data saved to 'generated_data.pkl'. You can now view the graph or export the data.")
 
     if 'generated_data' in st.session_state:
