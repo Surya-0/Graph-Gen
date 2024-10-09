@@ -1,5 +1,3 @@
-# pages/graph_generation.py
-
 import streamlit as st
 import networkx as nx
 import plotly.graph_objects as go
@@ -98,7 +96,6 @@ def save_to_csv(data, output_dir='output'):
                 for item in items:
                     writer.writerow(item)
 
-
 def generate_csv_files(data):
     csv_files = {}
     for key, items in data.items():
@@ -120,7 +117,7 @@ def generate_csv_files(data):
 def show():
     st.title("Graph Generation")
 
-    total_nodes = st.slider("Total number of nodes", min_value=26, max_value=100000, value=1000)
+    total_nodes = st.slider("Total number of nodes", min_value=26, max_value=1000000, value=1000)
 
     if st.button("Generate Graph"):
         with st.spinner("Generating graph..."):
@@ -135,12 +132,36 @@ def show():
 
         col1, col2 = st.columns([3, 1])
 
-        with col1:
-            st.subheader("Generated Graph Visualization")
-            fig = plot_graph(G)
-            st.plotly_chart(fig, use_container_width=True)
+        if total_nodes <= 10000:
+            with col1:
+                st.subheader("Generated Graph Visualization")
+                fig = plot_graph(G)
+                st.plotly_chart(fig, use_container_width=True)
 
-        with col2:
+            with col2:
+                st.subheader("Performance Metrics")
+                st.text(format_performance_metrics(performance_metrics))
+
+                with st.expander("Metrics Explanation"):
+                    st.info(get_metrics_explanation())
+
+                csv_files = generate_csv_files(data)
+
+                # Create a zip file containing all CSV files
+                zip_buffer = io.BytesIO()
+                with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                    for filename, content in csv_files.items():
+                        zip_file.writestr(filename, content)
+
+                # Offer the zip file for download
+                st.download_button(
+                    label="Download CSV files",
+                    data=zip_buffer.getvalue(),
+                    file_name="graph_data.zip",
+                    mime="application/zip"
+                )
+
+        else:
             st.subheader("Performance Metrics")
             st.text(format_performance_metrics(performance_metrics))
 
