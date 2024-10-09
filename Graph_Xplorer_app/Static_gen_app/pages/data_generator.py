@@ -1,4 +1,4 @@
-# data_generator.py
+# data_generator_page.py
 
 import random
 from .config import *
