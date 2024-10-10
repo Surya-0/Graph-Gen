@@ -5,6 +5,7 @@ from pages.data_generator_page import data_generator_page
 from pages.graph_display_page import graph_display_page
 from pages.data_export_page import data_export_page
 from pages.graph_analysis_page import graph_analysis_page
+from pages.performance_analysis_page import performance_analysis_page
 
 st.set_page_config(page_title="Supply Chain Graph Generator", layout="wide")
 
@@ -13,7 +14,8 @@ def main():
 
     # Sidebar for navigation
     st.sidebar.title("Navigation")
-    page = st.sidebar.radio("Go to", ["Generate Data", "Display Graph", "Graph Analysis", "Export Data"])
+    page = st.sidebar.radio("Go to", ["Generate Data", "Display Graph", "Graph Analysis", "Export Data", "Performance Analysis"])
+
 
     if page == "Generate Data":
         data_generator_page()
@@ -23,6 +25,8 @@ def main():
         graph_analysis_page()
     elif page == "Export Data":
         data_export_page()
+    elif page == "Performance Analysis":
+        performance_analysis_page()
 
 if __name__ == "__main__":
     main()
