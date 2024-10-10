@@ -7,6 +7,8 @@ import csv
 import zipfile
 from .data_generator import DataGenerator
 from .performance_utils import measure_performance, format_performance_metrics
+from .growth_rate_analysis import show_growth_rate_analysis
+
 
 @measure_performance
 def generate_graph(total_nodes):
@@ -115,30 +117,56 @@ def generate_csv_files(data):
     return csv_files
 
 def show():
-    st.title("Graph Generation")
+    st.title("Graph Generation and Analysis")
 
-    total_nodes = st.slider("Total number of nodes", min_value=26, max_value=1000000, value=1000)
+    tab1, tab2 = st.tabs(["Generate Graph", "Growth Rate Analysis"])
 
-    if st.button("Generate Graph"):
-        with st.spinner("Generating graph..."):
-            result = generate_graph(total_nodes)
-            data, G = result[0], result[1]
-            performance_metrics = result[2]
+    with tab1:
+        total_nodes = st.slider("Total number of nodes", min_value=26, max_value=1000000, value=1000)
 
-        st.session_state['data'] = data
-        st.session_state['graph'] = G
+        if st.button("Generate Graph"):
+            with st.spinner("Generating graph..."):
+                result = generate_graph(total_nodes)
+                data, G = result[0], result[1]
+                performance_metrics = result[2]
 
-        st.success(f"Graph generated with {total_nodes} nodes.")
+            st.session_state['data'] = data
+            st.session_state['graph'] = G
 
-        col1, col2 = st.columns([3, 1])
+            st.success(f"Graph generated with {total_nodes} nodes.")
 
-        if total_nodes <= 10000:
-            with col1:
-                st.subheader("Generated Graph Visualization")
-                fig = plot_graph(G)
-                st.plotly_chart(fig, use_container_width=True)
+            col1, col2 = st.columns([3, 1])
 
-            with col2:
+            if total_nodes <= 10000:
+                with col1:
+                    st.subheader("Generated Graph Visualization")
+                    fig = plot_graph(G)
+                    st.plotly_chart(fig, use_container_width=True)
+
+                with col2:
+                    st.subheader("Performance Metrics")
+                    st.text(format_performance_metrics(performance_metrics))
+
+                    with st.expander("Metrics Explanation"):
+                        st.info(get_metrics_explanation())
+
+                    csv_files = generate_csv_files(data)
+
+                    # Create a zip file containing all CSV files
+                    zip_buffer = io.BytesIO()
+                    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+                        for filename, content in csv_files.items():
+                            zip_file.writestr(filename, content)
+
+                    # Offer the zip file for download
+                    st.download_button(
+                        label="Download CSV files",
+                        data=zip_buffer.getvalue(),
+                        file_name="graph_data.zip",
+                        mime="application/zip"
+                    )
+
+            else:
                 st.subheader("Performance Metrics")
                 st.text(format_performance_metrics(performance_metrics))
 
@@ -161,28 +189,8 @@ def show():
                     mime="application/zip"
                 )
 
-        else:
-            st.subheader("Performance Metrics")
-            st.text(format_performance_metrics(performance_metrics))
-
-            with st.expander("Metrics Explanation"):
-                st.info(get_metrics_explanation())
-
-            csv_files = generate_csv_files(data)
-
-            # Create a zip file containing all CSV files
-            zip_buffer = io.BytesIO()
-            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-                for filename, content in csv_files.items():
-                    zip_file.writestr(filename, content)
-
-            # Offer the zip file for download
-            st.download_button(
-                label="Download CSV files",
-                data=zip_buffer.getvalue(),
-                file_name="graph_data.zip",
-                mime="application/zip"
-            )
+    with tab2:
+        show_growth_rate_analysis()
 
 def get_metrics_explanation():
     return """

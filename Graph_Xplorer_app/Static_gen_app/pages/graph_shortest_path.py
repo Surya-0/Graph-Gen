@@ -3,6 +3,7 @@ import networkx as nx
 import plotly.graph_objects as go
 from .performance_utils import measure_performance, format_performance_metrics, get_metrics_explanation
 
+
 @measure_performance
 def find_shortest_path(G, start_node, end_node):
     if start_node not in G.nodes or end_node not in G.nodes:
@@ -15,6 +16,7 @@ def find_shortest_path(G, start_node, end_node):
     except nx.NetworkXNoPath:
         st.error(f"No path exists between {start_node} and {end_node}")
         return None
+
 
 def visualize_path(G, path):
     if not path:
@@ -58,6 +60,7 @@ def visualize_path(G, path):
                     )
     return fig
 
+
 def show():
     st.title("Shortest Path Query")
 
@@ -67,24 +70,31 @@ def show():
 
     G = st.session_state['graph']
 
+    # Get the list of nodes
+    node_list = list(G.nodes())
+
+    # Create two columns for node selection
     col1, col2 = st.columns(2)
+
     with col1:
-        start_node = st.text_input("Enter the start node ID:")
+        st.subheader("Start Node")
+        start_node = st.selectbox("Select the start node:", node_list, key="start_node")
+        st.write(f"Selected start node: {start_node}")
+
     with col2:
-        end_node = st.text_input("Enter the end node ID:")
+        st.subheader("End Node")
+        end_node = st.selectbox("Select the end node:", node_list, key="end_node")
+        st.write(f"Selected end node: {end_node}")
 
     if st.button("Find Shortest Path"):
-        if start_node in G.nodes and end_node in G.nodes:
-            path, performance_metrics = find_shortest_path(G, start_node, end_node)
-            if path:
-                st.success(f"Shortest path found: {' -> '.join(path)}")
-                fig = visualize_path(G, path)
-                if fig:
-                    st.plotly_chart(fig)
+        path, performance_metrics = find_shortest_path(G, start_node, end_node)
+        if path:
+            st.success(f"Shortest path found: {' -> '.join(path)}")
+            fig = visualize_path(G, path)
+            if fig:
+                st.plotly_chart(fig)
 
-                st.subheader("Performance Metrics")
-                st.text(format_performance_metrics(performance_metrics))
-        else:
-            st.error("One or both nodes not found in the graph.")
+            st.subheader("Performance Metrics")
+            st.text(format_performance_metrics(performance_metrics))
 
     st.info(get_metrics_explanation())

@@ -1,5 +1,3 @@
-# pages/graph_query.py
-
 import streamlit as st
 import networkx as nx
 import plotly.graph_objects as go
@@ -73,7 +71,7 @@ def query_subgraph(G, node_id, levels=2):
     return fig
 
 def show():
-    st.title("Graph Query")
+    st.title("Subgraph Query")
 
     if 'graph' not in st.session_state:
         st.warning("Please generate a graph first.")
@@ -81,17 +79,28 @@ def show():
 
     G = st.session_state['graph']
 
-    node_id = st.text_input("Enter a node ID to query:")
+    # Get the list of nodes
+    node_list = list(G.nodes())
+
+    # Create a selectbox for node selection
+    selected_node = st.selectbox("Select a node to query:", node_list, key="subgraph_node")
+    st.write(f"Selected node: {selected_node}")
+
     levels = st.slider("Select the number of levels to explore:", min_value=1, max_value=5, value=2)
 
     if st.button("Query Subgraph"):
-        if node_id in G.nodes:
-            fig, performance_metrics = query_subgraph(G, node_id, levels)
+        fig, performance_metrics = query_subgraph(G, selected_node, levels)
+        if fig:
             st.plotly_chart(fig)
 
             st.subheader("Performance Metrics")
             st.text(format_performance_metrics(performance_metrics))
 
             st.info(get_metrics_explanation())
-        else:
-            st.error(f"Node {node_id} not found in the graph.")
+
+    # Display node information
+    if selected_node:
+        st.subheader("Selected Node Information")
+        node_info = G.nodes[selected_node]
+        for key, value in node_info.items():
+            st.write(f"{key}: {value}")
